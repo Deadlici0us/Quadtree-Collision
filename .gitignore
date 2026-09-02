@@ -1,0 +1,47 @@
+# Rust / Cargo
+/target
+**/*.rs.bk
+Cargo.lock.bak
+
+# wasm-pack build output (regenerated on every deploy)
+/pkg
+
+# Node / JS toolchain
+/node_modules
+/dist
+
+# GitHub Pages staging output (regenerated on every deploy)
+/_site
+/.cache
+/.parcel-cache
+/.vite
+/.next
+/.nuxt
+
+# Logs and runtime
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Env / secrets (never commit)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets.*

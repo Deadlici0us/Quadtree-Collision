@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>QuadTree Collision Sandbox · Rust + WebAssembly</title>
+    <meta
+      name="description"
+      content="A Rust + WebAssembly boids and elastic-collision sandbox powered by a dynamic QuadTree spatial index. Up to 10,000 particles per side; 60 FPS up to 5,000."
+    />
+    <link rel="icon" href="./www/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./www/style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark"></span>
+        <h1>QuadTree&nbsp;Collision&nbsp;Sandbox</h1>
+      </div>
+      <div class="badges">
+        <span class="badge">Rust</span>
+        <span class="badge">WebAssembly</span>
+        <span class="badge">Up to 10,000 per side · 60 FPS to 5k</span>
+        <a class="gh-link" href="https://github.com/Deadlici0us/Quadtree-Collision" target="_blank" rel="noopener">
+          GitHub ↗
+        </a>
+      </div>
+    </header>
+
+    <main class="stage-wrap">
+      <div class="stage" id="stage">
+        <canvas id="canvas-left" class="half"></canvas>
+        <canvas id="canvas-right" class="half"></canvas>
+        <div class="hud">
+          <div class="hud-cell">
+            <span class="hud-label">FPS</span>
+            <span class="hud-value" id="fps-value">—</span>
+          </div>
+          <div class="hud-cell">
+            <span class="hud-label">Left</span>
+            <span class="hud-value" id="left-label">boids</span>
+          </div>
+          <div class="hud-cell">
+            <span class="hud-label">Right</span>
+            <span class="hud-value" id="right-label">elastic</span>
+          </div>
+          <div class="hud-cell">
+            <span class="hud-label">Total</span>
+            <span class="hud-value" id="total-value">0</span>
+          </div>
+        </div>
+      </div>
+
+      <aside class="panel">
+        <section class="panel-section">
+          <h2>View</h2>
+          <div class="seg" role="radiogroup" aria-label="View">
+            <button class="seg-btn active" data-view="split">Split</button>
+            <button class="seg-btn" data-view="boids">Boids only</button>
+            <button class="seg-btn" data-view="collisions">Collisions only</button>
+          </div>
+        </section>
+
+        <section class="panel-section">
+          <h2>Particles per side</h2>
+          <div class="row">
+            <input
+              type="range"
+              id="count"
+              min="100"
+              max="10000"
+              step="100"
+              value="500"
+            />
+            <output id="count-value">500</output>
+          </div>
+          <p class="hint" id="total-hint">Total: 1,000 across both sides.</p>
+        </section>
+
+        <section class="panel-section" id="boids-controls">
+          <h2>Boids</h2>
+          <div class="row">
+            <label>Perception</label>
+            <input type="range" id="boid-perception" min="10" max="120" step="1" value="35" />
+            <output id="boid-perception-value">35</output>
+          </div>
+          <div class="row">
+            <label>Separation</label>
+            <input type="range" id="boid-sep" min="5" max="20" step="1" value="5" />
+            <output id="boid-sep-value">5</output>
+          </div>
+          <div class="row">
+            <label>Max speed</label>
+            <input type="range" id="boid-speed" min="20" max="160" step="1" value="70" />
+            <output id="boid-speed-value">70</output>
+          </div>
+          <div class="row">
+            <label>Max force</label>
+            <input type="range" id="boid-force" min="20" max="320" step="1" value="180" />
+            <output id="boid-force-value">180</output>
+          </div>
+        </section>
+
+        <section class="panel-section" id="collisions-controls">
+          <h2>Elastic collisions</h2>
+          <div class="row">
+            <label>Damping</label>
+            <input
+              type="range"
+              id="coll-damping"
+              min="0.95"
+              max="1"
+              step="0.001"
+              value="0.998"
+            />
+            <output id="coll-damping-value">0.998</output>
+          </div>
+          <div class="row">
+            <label>Restitution</label>
+            <input
+              type="range"
+              id="coll-restitution"
+              min="0.5"
+              max="1"
+              step="0.01"
+              value="1.0"
+            />
+            <output id="coll-restitution-value">1.00</output>
+          </div>
+        </section>
+
+        <section class="panel-section">
+          <h2>Visualisation</h2>
+          <label class="check">
+            <input type="checkbox" id="show-qt" />
+            Show QuadTree overlay
+          </label>
+        </section>
+
+        <section class="panel-section">
+          <div class="btn-row">
+            <button class="btn" id="pause-btn">Pause</button>
+            <button class="btn ghost" id="reset-btn">Reset</button>
+          </div>
+        </section>
+      </aside>
+    </main>
+
+    <footer class="foot">
+      <span>Built with Rust + WebAssembly · MIT · No frameworks</span>
+    </footer>
+
+    <script type="module" src="./www/main.js"></script>
+  </body>
+</html>

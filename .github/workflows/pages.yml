@@ -1,0 +1,81 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "."
+      - name: Install wasm-pack
+        run: |
+          curl -L \
+            https://github.com/wasm-bindgen/wasm-pack/releases/download/v0.15.0/wasm-pack-v0.15.0-x86_64-unknown-linux-musl.tar.gz \
+            -o /tmp/wasm-pack.tgz
+          tar -xzf /tmp/wasm-pack.tgz -C /tmp
+          sudo mv /tmp/wasm-pack-v0.15.0-x86_64-unknown-linux-musl/wasm-pack /usr/local/bin/
+          wasm-pack --version
+      - name: Install binaryen (wasm-opt)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y binaryen
+      - name: Build WASM
+        run: wasm-pack build --release --target web --out-dir pkg
+      - name: Shrink WASM
+        run: |
+          wasm-opt --enable-bulk-memory \
+                   --enable-nontrapping-float-to-int \
+                   --enable-sign-ext \
+                   -Oz pkg/quadtree_collision_bg.wasm \
+                   -o pkg/quadtree_collision_bg.wasm
+      - name: Prune deployable pkg
+        run: |
+          cd pkg
+          rm -f package.json README.md LICENSE .gitignore quadtree_collision_bg.wasm.d.ts
+          ls -la
+      - name: Stage deployable site
+        run: |
+          mkdir -p _site
+          cp index.html _site/
+          cp -r www pkg _site/
+          chmod -R +rX _site
+          ls -laR _site
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
